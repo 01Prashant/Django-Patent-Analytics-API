@@ -81,8 +81,8 @@ DATABASES = {
         'NAME': BASE_DIR / 'db.sqlite3',
     }
     # 'default': {
-    #     'ENGINE': 'django.db.backends.mysql',
-    #     'NAME': 'localconnection',
+    #     'ENGINE': 'django.db.backends.postgresql',
+    #     'NAME': 'patent',
     #     'USER': 'root',
     #     'PASSWORD': 'root',
     #     'HOST': 'localhost',
@@ -90,6 +90,12 @@ DATABASES = {
     # }
 }
 
+CACHES = {
+    'default': {
+        'BACKEND': 'django_redis.cache.RedisCache',
+        'LOCATION': 'redis://127.0.0.1:6379/1',
+    }
+}
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
