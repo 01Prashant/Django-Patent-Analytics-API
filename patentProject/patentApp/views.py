@@ -3,6 +3,7 @@ from rest_framework.response import Response
 from rest_framework import status
 
 from django.db.models import Count
+from django.core.cache import cache
 from django.utils.dateparse import parse_date
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 
@@ -13,6 +14,17 @@ from .serializers import PatentQuerySerializer, PatentSummarySerializer
 @api_view(['GET'])
 def query_patents(request):
     try:
+         # Generate a cache key based on query parameters
+        cache_key = 'query_patents:' + ':'.join(f"{k}={v}" for k, v in request.query_params.items())
+        
+        # Try to get data from cache
+        cached_data = cache.get(cache_key)
+        if cached_data:
+            print("caching works")
+            return Response(cached_data, status=status.HTTP_200_OK)
+        
+        print("caching works")
+        
         queryset = Patent.objects.all()
 
         # Extract query parameters
@@ -53,10 +65,15 @@ def query_patents(request):
             # Handle case where only one date is provided
             return Response({'error': 'Both publication_date_start and publication_date_end must be provided to filter by publication date.'}, status=status.HTTP_400_BAD_REQUEST)
 
-
         # Serialize and return the filtered queryset
         serializer = PatentQuerySerializer(queryset, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        response_data = serializer.data
+
+        # Cache the response data
+        cache.set(cache_key, response_data, timeout=60*15)  # Cache for 15 minutes
+
+
+        return Response(response_data, status=status.HTTP_200_OK)
 
     except ValidationError as ve:
         # Handle validation errors (e.g., invalid date format)
@@ -70,6 +87,15 @@ def query_patents(request):
 @api_view(['GET'])
 def patent_summary(request):
     try:
+        # Define cache key
+        cache_key = 'patent_summary'
+
+        # Try to get data from cache
+        cached_data = cache.get(cache_key)
+        if cached_data:
+            print("caching works")
+            return Response(cached_data, status=status.HTTP_200_OK)
+        
         # Aggregate counts by assignee
         count_by_assignee = (
             Patent.objects
@@ -146,7 +172,12 @@ def patent_summary(request):
 
         # Serialize the summary data
         serializer = PatentSummarySerializer(summary_data)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        response_data = serializer.data
+
+        # Cache the summary data
+        cache.set(cache_key, response_data, timeout=60*15)  # Cache for 15 minutes
+
+        return Response(response_data, status=status.HTTP_200_OK)
     
     except ObjectDoesNotExist as e:
         return Response({'error': 'No data found: ' + str(e)}, status=status.HTTP_404_NOT_FOUND)
