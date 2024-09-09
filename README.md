@@ -38,25 +38,46 @@ This project involves developing a backend API that provides analytical insights
     ```sh
     git clone https://github.com/01Prashant/Django-Patent-Analytics-API-using-Docker.git
     cd Django-Patent-Analytics-API-using-Docker
+## 1. Running the API Locally
+1. **Set Up a Virtual Environment:**
 
-2. **Build and run the Docker containers:**
+    ```sh
+    python -m venv venv
+    source venv/bin/activate  # On Windows, use `venv\Scripts\activate`
+2. **Install Dependencies:**
+
+    ```sh
+    pip install -r requirements.txt
+3. **Run Migrations:**
+
+    ```sh
+    python manage.py makemigrations
+    python manage.py migrate
+4. **Run the Development Server:**
+
+    ```sh
+    python manage.py runserver
+The API will be accessible at http://127.0.0.1:8000/.
+## 1. Running the API with  Docker-Compose
+
+1. **Build and run the Docker containers:**
 
     ```sh
     docker-compose build
     docker-compose up
 
-3. **Run migrations:**
+2. **Run migrations:**
 
     ```sh
     docker-compose exec web python manage.py makemigrations
     docker-compose exec web python manage.py migrate
     
-4. **Run the data cleaning script:**
+3. **Run the data cleaning script:**
 
     ```sh
     docker-compose exec web python scripts/dataclean.py
 
-5. **API Endpoints:**
+4. **API Endpoints:**
     - /summary: Returns summary statistics for numerical columns.
     - /query: Filters data based on query parameters (e.g., patent year, assignee).
 
