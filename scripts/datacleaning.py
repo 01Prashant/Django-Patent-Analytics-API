@@ -3,7 +3,7 @@ import pandas as pd
 import sqlite3
 
 # Path to the CSV file
-csv_file_path = 'data/patent_data.csv'
+csv_file_path = '../data/patent_data.csv'
 
 # Read the CSV file into a DataFrame
 df = pd.read_csv(csv_file_path)
@@ -46,7 +46,7 @@ df.rename(columns={
 }, inplace=True)
 
 # Save to SQLite database
-database_path = 'patentProject/db.sqlite3'
+database_path = '../patentProject/db.sqlite3'
 connection = sqlite3.connect(database_path)
 df.to_sql('patentApp_patent', connection, if_exists='replace', index=False)
 
